@@ -6,6 +6,7 @@ import path from "path";
 import memoRoutes from "./routes/memoRoutes.js";
 import { connectDB } from "./config/db.js";
 import rateLimiter from "./middleware/rateLimiter.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ if (process.env.NODE_ENV !== "production") {
   app.use(cors({ origin: "http://localhost:5173" }));
 }
 app.use(express.json());
+app.use("/api/auth", authRoutes);
 app.use(rateLimiter);
 app.use("/api/memos", memoRoutes);
 
@@ -29,9 +31,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "frontend/dist")));
 
   app.get("*", (request, response) => {
-    response.sendFile(
-      path.join(__dirname, "frontend/dist/index.html"),
-    );
+    response.sendFile(path.join(__dirname, "frontend/dist/index.html"));
   });
 }
 
