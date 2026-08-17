@@ -2,7 +2,7 @@ import { User } from "../models/userModel.js";
 import bcryptjs from "bcryptjs";
 import { generateVerificationToken } from "../utilities/generateVerificationToken.js";
 import { generateTokenAndSetCookie } from "../utilities/generateTokenAndSetCookie.js";
-import { sendVerificationEmail } from "../mailtrap/emails.js";
+import { sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/emails.js";
 
 export const signup = async (request, response) => {
   const { email, password, name } = request.body;
@@ -44,10 +44,78 @@ export const signup = async (request, response) => {
   }
 };
 
+export const verifyEmail = async (request, response) => {
+  const { code } = request.body;
+
+  try {
+    const user = await User.findOne({
+      verificationToken: code,
+      verificationTokenExpiresAt: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return response.status(400).json({
+        success: false,
+        message: "Invalid or expired verification code!",
+      });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiresAt = undefined;
+    await user.save();
+
+    await sendWelcomeEmail(user.email, user.name);
+    response.status(200).json({
+      success: true,
+      message: "User verified successfully!",
+      user: {
+        ...user._doc,
+        password: undefined,
+      },
+    });
+  } catch (error) {
+    console.error("Error in Verify Email!", error);
+    response.status(500).json({ success: false, message: "Server Error!" });
+  }
+};
+
 export const login = async (request, response) => {
-  response.send("Login Route");
+  const { email, password } = request.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return response
+        .status(400)
+        .json({ success: false, message: "Invalid Credentials!" });
+    }
+    const isPasswordValid = await bcryptjs.compare(password, user.password);
+    if (!isPasswordValid) {
+      return response
+        .status(400)
+        .json({ success: false, message: "Invalid Credentials!" });
+    }
+    generateTokenAndSetCookie(response, res._id);
+    user.lastLogin = new Date();
+    await user.save();
+
+    response.status(200).json({
+      success: true,
+      message: "Logged In Successfully!",
+      user: {
+        ...user._doc,
+        password: undefined,
+      },
+    });
+  } catch (error) {
+    console.error("Error in Login!", error);
+    response.status(500).json({ success: false, message: error.message });
+  }
 };
 
 export const logout = async (request, response) => {
-  response.send("Logout Route");
+  response.clearCookie("token");
+  response
+    .status(200)
+    .json({ success: true, message: "User Logged Out Successfully!" });
 };
