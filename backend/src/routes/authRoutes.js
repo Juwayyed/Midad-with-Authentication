@@ -6,9 +6,13 @@ import {
   verifyEmail,
   forgotPassword,
   resetPassword,
+  checkAuth,
 } from "../controllers/authController.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 
 const router = express.Router();
+
+router.get("/check-auth", checkAuth);
 
 router.post("/signup", signup);
 router.post("/login", login);

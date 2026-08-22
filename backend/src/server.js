@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
+import cookieParser from "cookie-parser";
 
 import memoRoutes from "./routes/memoRoutes.js";
 import { connectDB } from "./config/db.js";
@@ -23,6 +24,8 @@ if (process.env.NODE_ENV !== "production") {
   app.use(cors({ origin: "http://localhost:5173" }));
 }
 app.use(express.json());
+app.use(cookieParser());
+
 app.use("/api/auth", authRoutes);
 app.use(rateLimiter);
 app.use("/api/memos", memoRoutes);
