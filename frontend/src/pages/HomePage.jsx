@@ -40,7 +40,7 @@ const HomePage = () => {
       {isRateLimited && <RateLimitedUI />}
       <div className="max-w-7xl mx-auto mt-6 p-4">
         {loading && (
-          <div className="text-center text-primary py-10">Loading Memos...</div>
+          <div className="text-center text-white py-10">Loading Memos...</div>
         )}
 
         {memos.length === 0 && !isRateLimited && <NoMemos />}
