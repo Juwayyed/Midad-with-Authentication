@@ -2,11 +2,13 @@ import { motion } from "framer-motion";
 import { User, Mail, Lock } from "lucide-react";
 import Input from "../components/Input.jsx";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator.jsx";
 
 export const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(null);
+  const [password, setPassword] = useState("");
   const handleSignup = (e) => {
     e.preventDefault();
   };
@@ -48,6 +50,8 @@ export const Signup = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
 
+            <PasswordStrengthIndicator password={password} />
+
             <motion.button
               type="submit"
               className="mt-5 w-full py-3 px-4 bg-linear-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-lg shadow-lg shadow-indigo-500/20 hover:from-indigo-700 hover:to-violet-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-indigo-950 transition duration-200"
@@ -58,9 +62,19 @@ export const Signup = () => {
             </motion.button>
           </form>
         </div>
+        <div className="px-8 py-4 bg-indigo-950/60 border-t border-indigo-500/20 flex justify-center">
+          <p className="text-sm text-indigo-200">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-violet-400 hover:text-violet-300 hover:underline transition-colors duration-200"
+            >
+              Login
+            </Link>
+          </p>
+        </div>
       </motion.div>
     </div>
   );
 };
-
 export default Signup;
